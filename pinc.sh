@@ -4,49 +4,51 @@
 #               Insert parameters                 #
 ###################################################
 
-##### Parameter to scan in profile likelihood (PL)
-# Parameter name, X, to scan in PL (needs to be of data.parameters type in .param script)
-XNAME=M_tot
-# Values of X to scan
-XRANGE="0.00 0.02 0.04 0.06 0.08 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45"
 
+##### Parameter to scan in profile likelihood (PL)
+# Parameter name, X, and its range to scan in PL (needs to be of data.parameters type in .param script)
+XNAME=M_tot
+XRANGE="0.00 0.02 0.04 0.06 0.08 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45"
 
 ##### Set mode (number or name of MODE)
 # (1) MODE=MCMC: runs MCMC with parameter X fixed to the values in XRANGE
 # (2) MODE=MIN: runs minimization to compute the PL in X for the values in XRANGE
 # (3) MODE=GLOB_MIN: computes global minimum
 # (4) MODE=ANALYSE_PL: prints the PL (after MIN has been run) - on login node
-MODE=ANALYSE_PL
+MODE=MIN
 
-##### Parameters for .param script
-# Name of MontePython .param script (the parameter X needs to be a data.parameters in the .param script)
-PARAM_NAME=base2018TTTEEE_lensing_bao.param
-# Path to MontePython .param script (all paths without / in the end)
+##### MontePython settings (no / after directories)
+# Directory and name of MontePython .param script (the parameter X needs to be a data.parameters in the .param script)
 PARAM_DIR=/u/lherold/Pk/MontePython/montepython/input/2024_Wilks_test
+PARAM_NAME=Planck_Mnu_deg.param  
 
-##### Parameters for job script
-# Path to slurm log directory
-LOG_DIR=/u/lherold/Pk/MontePython/log
 # Path and file name of output
 OUT_DIR=/freya/ptmp/mpa/lherold
-OUT_NAME=2024_07_24_PL_PlanckLite_LCDM_h
+OUT_NAME=2024_07_24_PL_Planck_Mnu_deg
+
 # Path and file name of input covariance matrix (if unavailable put None in NAME)
-COV_DIR=/u/lherold/Pk/MontePython/chains_LCDMext/Final_MCMCs
-COV_NAME=2024_06_21_MCMC_LCDM_Planck+BAO
+COV_DIR=/freya/ptmp/mpa/lherold
+COV_NAME=2024_07_23_MCMC_Planck_Mnu_deg
+
 # Path to file containing input bestfit (if unavailable put None in NAME)
 BF_DIR=/u/lherold/Pk/MontePython/chains_LCDMext/Final_MCMCs
-BF_NAME=2024_06_21_MCMC_LCDM_Planck+BAO
+BF_NAME=2024_07_23_MCMC_Planck_Mnu_deg
+
 # If covariance/bestfit comes from the same file for every fixed value in XRANGE
 ONE_COVBF_FILE=True
 
-###### Other parameters
+##### Other paramters
 # Name of job script (here slurm)
 JOB_SCRIPT=pinc.slurm
 # Path to MontePython folder                                                                                     
 MP_DIR=/u/lherold/Pk/MontePython
+# Path to slurm log directory                                                                                                                  
+LOG_DIR=/u/lherold/Pk/MontePython/log
+# Path to .config file
+CONF=/u/lherold/Pk/MontePython/default.conf
 
 ##### Parameters only for MCMC (to get good estimate of bestfit and covariance)
-# Number of steps 
+# Number of steps in MCMC
 N=100000
 # Submit jobs that that restart from OUT_DIR/OUT_NAME (if cluster kills jobs after certain amount of time)
 RE_RUN=False
@@ -59,9 +61,11 @@ RESTART3=${OUT_NAME}/2023-11-26_23400000__1.txt
 
 ##### No changes should be necessary from here on
 
+
 ###################################################                                                                                            
 #                 Preliminaries                   #                                                                                           
 ################################################### 
+
 
 #### Small changes in two MontePython scripts (after running this once, these two sed commands could be removed)
 # Small change to temperature treatment in montepython/sampler.py                                                                              
@@ -80,7 +84,7 @@ sed -i "s|$SRC|$DST|" ${MP_DIR}/montepython/mcmc.py
 ###################################################
 
 
-if [ $MODE = ANALYSE_PL ] || [ $MODE = 4 ]; thena
+if [ $MODE = ANALYSE_PL ] || [ $MODE = 4 ]; then
     echo " "
     echo "Printing Minimum of -logLike for "$OUT_NAME":"
     echo -n "${XNAME} = ["
@@ -106,12 +110,8 @@ fi
 #             COMMON SETTINGS                     #                                                                                            
 ###################################################  
 
-# Change path to MontePython in job script                                                                                                     
-MP=${MP_DIR}/montepython/MontePython.py
-SRC="MP=.*"
-DST="MP=${MP}"
-sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
-
+   
+##### Modify job script    
 # Change mode (MIN, MCMC, ...) in job script
 SRC="MODE=.*"
 DST="MODE=${MODE}"
@@ -121,6 +121,18 @@ sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
 SRC="OUT=.*"
 DST="OUT=${OUT_DIR}/${OUT_NAME}"
 sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
+
+# Change path to .config file
+SRC="CONF=.*"
+DST="CONF=${CONF}"
+sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
+
+# Change path to MontePython in job script                                                                                                     
+MP=${MP_DIR}/montepython/MontePython.py
+SRC="MP=.*"
+DST="MP=${MP}"
+sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
+
 
 ###################################################
 #                  GLOBAL MIN                     #
@@ -140,6 +152,11 @@ if [ $MODE = GLOB_MIN ] || [ $MODE = 3 ]; then
     DST="#SBATCH --output=${LOG_DIR}/${OUT_NAME}_${MODE}\.log"
     sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
 
+    # Change MontePython .param file name in job script                                                                                        
+    SRC="PARAM=.*"
+    DST="PARAM=${PARAM_DIR}/${PARAM_NAME}"
+    sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
+    
     # Change BF file in job script
     SRC="BF=.*"
     DST="BF=${BF_DIR}/${BF_NAME}/${BF_NAME}.bestfit"
@@ -153,11 +170,6 @@ if [ $MODE = GLOB_MIN ] || [ $MODE = 3 ]; then
     # Change covariance in job script
     SRC="COV=.*"
     DST="COV=${COV_DIR}/${COV_NAME}/${COV_NAME}.covmat"
-    sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
-
-    # Change MontePython .param file name in job script
-    SRC="PARAM=.*"
-    DST="PARAM=${PARAM_DIR}/${PARAM_NAME}"
     sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
 
     # Submit job
@@ -196,6 +208,11 @@ do
     DST="#SBATCH --output=${LOG_DIR}/${OUT_NAME}_${MODE}_${X}\.log"
     sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
 
+    # Change MontePython .param file name in job script                                                                                        
+    SRC="PARAM=.*"
+    DST="PARAM=${PARAM_DIR}/${NEW_PARAM_NAME}"
+    sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
+    
     # Change BF file in job script
     SRC="BF=.*"
     if [ "$ONE_COVBF_FILE" = True ]; then
@@ -217,11 +234,6 @@ do
     else
 	DST="COV=${COV_DIR}/${COV_NAME}_${X}/${COV_NAME}_${X}.covmat"
     fi
-    sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
-
-    # Change MontePython .param file name in job script
-    SRC="PARAM=.*"
-    DST="PARAM=${PARAM_DIR}/${NEW_PARAM_NAME}"
     sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
 
     # Only for MCMC runs:
