@@ -7,8 +7,8 @@
 
 ##### Parameter to scan in profile likelihood (PL)
 # Parameter name, X, and its range to scan in PL (needs to be of data.parameters type in .param script)
-XNAME=M_tot
-XRANGE="0.00 0.02 0.04 0.06 0.08 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45"
+XNAME=m_ncdm
+XRANGE="0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.12 0.14 0.16"
 
 ##### Set mode (number or name of MODE)
 # (1) MODE=MCMC: runs MCMC with parameter X fixed to the values in XRANGE
@@ -20,18 +20,18 @@ MODE=MIN
 ##### MontePython settings (no / after directories)
 # Directory and name of MontePython .param script (the parameter X needs to be a data.parameters in the .param script)
 PARAM_DIR=/u/lherold/Pk/MontePython/montepython/input/2024_Wilks_test
-PARAM_NAME=Planck_Mnu_deg.param  
+PARAM_NAME=Planck_Mnu_deg_mncdm.param
 
 # Path and file name of output
 OUT_DIR=/freya/ptmp/mpa/lherold
-OUT_NAME=2024_07_24_PL_Planck_Mnu_deg
+OUT_NAME=2024_07_24_PL_Planck_mncdm_deg
 
 # Path and file name of input covariance matrix (if unavailable put None in NAME)
 COV_DIR=/freya/ptmp/mpa/lherold
 COV_NAME=2024_07_23_MCMC_Planck_Mnu_deg
 
 # Path to file containing input bestfit (if unavailable put None in NAME)
-BF_DIR=/u/lherold/Pk/MontePython/chains_LCDMext/Final_MCMCs
+BF_DIR=/freya/ptmp/mpa/lherold
 BF_NAME=2024_07_23_MCMC_Planck_Mnu_deg
 
 # If covariance/bestfit comes from the same file for every fixed value in XRANGE
@@ -85,22 +85,35 @@ sed -i "s|$SRC|$DST|" ${MP_DIR}/montepython/mcmc.py
 
 
 if [ $MODE = ANALYSE_PL ] || [ $MODE = 4 ]; then
+
+    PL_OUTPUT=${OUT_DIR}/${OUT_NAME}.txt
+    printf "Profile likelihood analysis for X=${XNAME} \n \n" > PL_OUTPUT
+    printf "x_array = [ $XRANGE ] \n" >> PL_OUTPUT
+    
     echo " "
     echo "Printing Minimum of -logLike for "$OUT_NAME":"
-    echo -n "${XNAME} = ["
     for X in ${XRANGE}
     do
 	echo -n $X","
     done
     echo "]"
-    echo -n "chi2 = ["
+
+    
+    echo -n "-logL = ["
+    printf "-logL = [ " >> PL_OUTPUT
     for X in ${XRANGE}
     do
         FN=${OUT_DIR}/${OUT_NAME}_${X}/${OUT_NAME}_${X}".log"
         logL="$(grep -i "Minimum of -logLike" ${FN} | cut -d : -f 2)"
         echo -n $logL", "
+	printf "$logL " >> PL_OUTPUT
     done
     echo -n "]"
+    printf "] /n" >> PL_OUTPUT
+    
+    #python pinc.py ${PL_OUTPUT}
+    echo "Full profile likelihood analysis saved to file:"
+    echo "${PL_OUTPUT}"
     echo " "
     exit
 fi
@@ -115,11 +128,6 @@ fi
 # Change mode (MIN, MCMC, ...) in job script
 SRC="MODE=.*"
 DST="MODE=${MODE}"
-sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
-
-# Change output file in job script                                                                                                          
-SRC="OUT=.*"
-DST="OUT=${OUT_DIR}/${OUT_NAME}"
 sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
 
 # Change path to .config file
@@ -156,7 +164,12 @@ if [ $MODE = GLOB_MIN ] || [ $MODE = 3 ]; then
     SRC="PARAM=.*"
     DST="PARAM=${PARAM_DIR}/${PARAM_NAME}"
     sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
-    
+
+    # Change output file in job script
+    SRC="OUT=.*"
+    DST="OUT=${OUT_DIR}/${OUT_NAME}"
+    sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
+
     # Change BF file in job script
     SRC="BF=.*"
     DST="BF=${BF_DIR}/${BF_NAME}/${BF_NAME}.bestfit"
@@ -211,6 +224,11 @@ do
     # Change MontePython .param file name in job script                                                                                        
     SRC="PARAM=.*"
     DST="PARAM=${PARAM_DIR}/${NEW_PARAM_NAME}"
+    sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
+
+    # Change output file in job script                                                                                                         
+    SRC="OUT=.*"
+    DST="OUT=${OUT_DIR}/${OUT_NAME}_${X}"
     sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
     
     # Change BF file in job script
