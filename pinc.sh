@@ -8,14 +8,15 @@
 ##### Parameter to scan in profile likelihood (PL)
 # Parameter name, X, and its range to scan in PL (needs to be of data.parameters type in .param script)
 XNAME=m_ncdm
-XRANGE="0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.12 0.14 0.16"
+XRANGE="0.01"
+#0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.12 0.14 0.16"
 
 ##### Set mode (number or name of MODE)
 # (1) MODE=MCMC: runs MCMC with parameter X fixed to the values in XRANGE
 # (2) MODE=MIN: runs minimization to compute the PL in X for the values in XRANGE
 # (3) MODE=GLOB_MIN: computes global minimum
 # (4) MODE=ANALYSE_PL: prints the PL (after MIN has been run) - on login node
-MODE=MIN
+MODE=4
 
 ##### MontePython settings (no / after directories)
 # Directory and name of MontePython .param script (the parameter X needs to be a data.parameters in the .param script)
@@ -100,7 +101,7 @@ if [ $MODE = ANALYSE_PL ] || [ $MODE = 4 ]; then
 
     
     echo -n "-logL = ["
-    printf "-logL = [ " >> PL_OUTPUT
+    printf "\-logL = [ " >> PL_OUTPUT
     for X in ${XRANGE}
     do
         FN=${OUT_DIR}/${OUT_NAME}_${X}/${OUT_NAME}_${X}".log"
@@ -242,7 +243,7 @@ do
 
     # Change BF2 file in job script (only for minimization)
     SRC="BF2=.*"
-    DST="BF2=${OUT_DIR}/${OUT_NAME}/${OUT_NAME}.bestfit"
+    DST="BF2=${OUT_DIR}/${OUT_NAME}_${X}/${OUT_NAME}_${X}.bestfit"
     sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
 
     # Change covariance file in job script
