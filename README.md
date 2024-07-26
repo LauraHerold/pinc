@@ -1,2 +1,2 @@
 # pinc
-"Profiles in Cosmology": simple simulated-annealing minimizer for computing profile likelihoods
+Simple simulated-annealing minimizer for computing profile likelihoods with [MontePython](https://github.com/brinckmann/montepython_public).
