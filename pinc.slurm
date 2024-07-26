@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name=0.16_MIN
+#SBATCH --job-name=0.10_MIN
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=lherold@mpa-garching.mpg.de
 #SBATCH --ntasks=8
@@ -7,7 +7,7 @@
 #SBATCH --time=24:00:00
 #SBATCH -N 1
 #SBATCH -p p.24h
-#SBATCH --output=/u/lherold/Pk/MontePython/log/2024_07_24_PL_Planck_mncdm_deg_MIN_0.16.log
+#SBATCH --output=/u/lherold/Pk/MontePython/log/2024_07_26_PL_Planck_Mtot_deg_MIN_0.10.log
 
 #### Needs to be adapted by the system
 # Source Planck clik likelihood
@@ -25,11 +25,11 @@ export OMP_THREAD_LIMIT="5"
 
 # Paramters
 MODE=MIN
-PARAM=/u/lherold/Pk/MontePython/montepython/input/2024_Wilks_test/2024_07_24_PL_Planck_mncdm_deg_0.16.param
-OUT=/freya/ptmp/mpa/lherold/2024_07_24_PL_Planck_mncdm_deg_0.16
-BF=/freya/ptmp/mpa/lherold/2024_07_23_MCMC_Planck_Mnu_deg/2024_07_23_MCMC_Planck_Mnu_deg.bestfit
-BF2=/freya/ptmp/mpa/lherold/2024_07_24_PL_Planck_mncdm_deg/2024_07_24_PL_Planck_mncdm_deg.bestfit
-COV=/freya/ptmp/mpa/lherold/2024_07_23_MCMC_Planck_Mnu_deg/2024_07_23_MCMC_Planck_Mnu_deg.covmat
+PARAM=/u/lherold/Pk/MontePython/montepython/input/2024_Wilks_test/2024_07_26_PL_Planck_Mtot_deg_0.10.param
+OUT=/freya/ptmp/mpa/lherold/2024_07_26_PL_Planck_Mtot_deg_0.10
+BF=/freya/ptmp/mpa/lherold/2024_07_25_MCMC_PlanckBAO_deg_Mtot/2024_07_25_MCMC_PlanckBAO_deg_Mtot.bestfit
+BF2=/freya/ptmp/mpa/lherold/2024_07_26_PL_Planck_Mtot_deg_0.10/2024_07_26_PL_Planck_Mtot_deg_0.10.bestfit
+COV=/freya/ptmp/mpa/lherold/2024_07_25_MCMC_PlanckBAO_deg_Mtot/2024_07_25_MCMC_PlanckBAO_deg_Mtot.covmat
 MP=/u/lherold/Pk/MontePython/montepython/MontePython.py
 CONF=/u/lherold/Pk/MontePython/default.conf
 N=

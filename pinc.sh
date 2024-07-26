@@ -8,14 +8,14 @@
 ##### Parameter to scan in profile likelihood (PL)
 # Parameter name, X, and its range to scan in PL (needs to be of data.parameters type in .param script)
 XNAME=m_ncdm
-XRANGE="0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.12 0.14 0.16"
+XRANGE="0.00 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10"
 
 ##### Set mode (number or name of MODE)
 # (1) MODE=MCMC: runs MCMC with parameter X fixed to the values in XRANGE
 # (2) MODE=MIN: runs minimization to compute the PL in X for the values in XRANGE
 # (3) MODE=GLOB_MIN: computes global minimum
 # (4) MODE=ANALYSE_PL: prints the PL (after MIN has been run) - on login node
-MODE=4
+MODE=MIN
 
 ##### MontePython settings (no / after directories)
 # Directory and name of MontePython .param script (the parameter X needs to be a data.parameters in the .param script)
@@ -24,15 +24,15 @@ PARAM_NAME=Planck_Mnu_deg_mncdm.param
 
 # Path and file name of output
 OUT_DIR=/freya/ptmp/mpa/lherold
-OUT_NAME=2024_07_24_PL_Planck_mncdm_deg
+OUT_NAME=2024_07_26_PL_Planck_Mtot_deg
 
 # Path and file name of input covariance matrix (if unavailable put None in NAME)
 COV_DIR=/freya/ptmp/mpa/lherold
-COV_NAME=2024_07_23_MCMC_Planck_Mnu_deg
+COV_NAME=2024_07_25_MCMC_PlanckBAO_deg_Mtot
 
 # Path to file containing input bestfit (if unavailable put None in NAME)
 BF_DIR=/freya/ptmp/mpa/lherold
-BF_NAME=2024_07_23_MCMC_Planck_Mnu_deg
+BF_NAME=2024_07_25_MCMC_PlanckBAO_deg_Mtot
 
 # If covariance/bestfit comes from the same file for every fixed value in XRANGE
 ONE_COVBF_FILE=True
@@ -198,8 +198,6 @@ if [ $MODE = GLOB_MIN ] || [ $MODE = 3 ]; then
     
     exit
 fi
-
-exit
 
 ###################################################
 #                      PL                         #
