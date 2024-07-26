@@ -8,8 +8,7 @@
 ##### Parameter to scan in profile likelihood (PL)
 # Parameter name, X, and its range to scan in PL (needs to be of data.parameters type in .param script)
 XNAME=m_ncdm
-XRANGE="0.01"
-#0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.12 0.14 0.16"
+XRANGE="0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.12 0.14 0.16"
 
 ##### Set mode (number or name of MODE)
 # (1) MODE=MCMC: runs MCMC with parameter X fixed to the values in XRANGE
@@ -88,11 +87,14 @@ sed -i "s|$SRC|$DST|" ${MP_DIR}/montepython/mcmc.py
 if [ $MODE = ANALYSE_PL ] || [ $MODE = 4 ]; then
 
     PL_OUTPUT=${OUT_DIR}/${OUT_NAME}.txt
-    printf "Profile likelihood analysis for X=${XNAME} \n \n" > PL_OUTPUT
-    printf "x_array = [ $XRANGE ] \n" >> PL_OUTPUT
+    printf "## Profile likelihood analysis for ${XNAME} \n \n" > $PL_OUTPUT
+    printf "#${XNAME}:\n  $XRANGE \n\n" >> $PL_OUTPUT
     
     echo " "
-    echo "Printing Minimum of -logLike for "$OUT_NAME":"
+    echo "***"
+    echo "Printing profile likelihood for "$OUT_NAME":"
+    echo " "
+    echo -n "$XNAME=[ "
     for X in ${XRANGE}
     do
 	echo -n $X","
@@ -101,20 +103,24 @@ if [ $MODE = ANALYSE_PL ] || [ $MODE = 4 ]; then
 
     
     echo -n "-logL = ["
-    printf "\-logL = [ " >> PL_OUTPUT
+    printf "#logL: \n " >> $PL_OUTPUT
     for X in ${XRANGE}
     do
         FN=${OUT_DIR}/${OUT_NAME}_${X}/${OUT_NAME}_${X}".log"
         logL="$(grep -i "Minimum of -logLike" ${FN} | cut -d : -f 2)"
         echo -n $logL", "
-	printf "$logL " >> PL_OUTPUT
+	printf "${logL} " >> $PL_OUTPUT
     done
-    echo -n "]"
-    printf "] /n" >> PL_OUTPUT
+    echo  "]"
+    echo " "
+    printf "\n" >> $PL_OUTPUT
     
-    #python pinc.py ${PL_OUTPUT}
-    echo "Full profile likelihood analysis saved to file:"
+    python pinc.py ${OUT_DIR}/${OUT_NAME} ${XNAME}
+    echo " "
+    echo "Profile likelihood analysis saved to files:"
     echo "${PL_OUTPUT}"
+    echo "${OUT_DIR}/${OUT_NAME}.pdf"
+    echo "***"
     echo " "
     exit
 fi
@@ -193,6 +199,7 @@ if [ $MODE = GLOB_MIN ] || [ $MODE = 3 ]; then
     exit
 fi
 
+exit
 
 ###################################################
 #                      PL                         #
