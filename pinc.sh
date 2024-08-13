@@ -7,8 +7,8 @@
 
 ##### Parameter to scan in profile likelihood (PL)
 # Parameter name, X, and its range to scan in PL (needs to be of data.parameters type in .param script)
-XNAME=m_ncdm
-XRANGE="0.00 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10"
+XNAME=w0_fld
+XRANGE="-1.1 -1.0 -0.9"
 
 ##### Set mode (number or name of MODE)
 # (1) MODE=MCMC: runs MCMC with parameter X fixed to the values in XRANGE
@@ -20,19 +20,19 @@ MODE=MIN
 ##### MontePython settings (no / after directories)
 # Directory and name of MontePython .param script (the parameter X needs to be a data.parameters in the .param script)
 PARAM_DIR=/u/lherold/Pk/MontePython/montepython/input/2024_Wilks_test
-PARAM_NAME=Planck_Mnu_deg_mncdm.param
+PARAM_NAME=PlikLiteTTTEE_fixed-Apl-tau_w0.param
 
 # Path and file name of output
 OUT_DIR=/freya/ptmp/mpa/lherold
-OUT_NAME=2024_07_26_PL_Planck_Mtot_deg
+OUT_NAME=2024_08_13_PL_Asimov_w0
 
 # Path and file name of input covariance matrix (if unavailable put None in NAME)
-COV_DIR=/freya/ptmp/mpa/lherold
-COV_NAME=2024_07_25_MCMC_PlanckBAO_deg_Mtot
+COV_DIR=/u/lherold/Pk/MontePython/chains_LCDMext/Final_MCMCs
+COV_NAME=None
 
 # Path to file containing input bestfit (if unavailable put None in NAME)
 BF_DIR=/freya/ptmp/mpa/lherold
-BF_NAME=2024_07_25_MCMC_PlanckBAO_deg_Mtot
+BF_NAME=None
 
 # If covariance/bestfit comes from the same file for every fixed value in XRANGE
 ONE_COVBF_FILE=True
@@ -45,11 +45,12 @@ MP_DIR=/u/lherold/Pk/MontePython
 # Path to slurm log directory                                                                                                                  
 LOG_DIR=/u/lherold/Pk/MontePython/log
 # Path to .config file
-CONF=/u/lherold/Pk/MontePython/default.conf
+CONF=/u/lherold/Pk/MontePython/wilks_check.conf/Wilks_asimov.conf
+
+# Number of steps (about 2000 for LCDM with a covmat from MCMC with all parameters), increase for MCMC
+N=2000
 
 ##### Parameters only for MCMC (to get good estimate of bestfit and covariance)
-# Number of steps in MCMC
-N=100000
 # Submit jobs that that restart from OUT_DIR/OUT_NAME (if cluster kills jobs after certain amount of time)
 RE_RUN=False
 # If RE_RUN: Name of first restart file of first run
@@ -62,8 +63,8 @@ RESTART3=${OUT_NAME}/2023-11-26_23400000__1.txt
 ##### No changes should be necessary from here on
 
 
-###################################################                                                                                            
-#                 Preliminaries                   #                                                                                           
+###################################################                                             
+#                 Preliminaries                   #                                                         
 ################################################### 
 
 
@@ -117,7 +118,7 @@ if [ $MODE = ANALYSE_PL ] || [ $MODE = 4 ]; then
     
     python pinc.py ${OUT_DIR}/${OUT_NAME} ${XNAME}
     echo " "
-    echo "Profile likelihood analysis saved to files:"
+    echo "Profile likelihood analysis saved to files (warning: the analysis is preliminary and should always be double checked):"
     echo "${PL_OUTPUT}"
     echo "${OUT_DIR}/${OUT_NAME}.pdf"
     echo "***"
@@ -126,8 +127,8 @@ if [ $MODE = ANALYSE_PL ] || [ $MODE = 4 ]; then
 fi
 
 
-###################################################                                                                                            
-#             COMMON SETTINGS                     #                                                                                            
+###################################################                                                   
+#             COMMON SETTINGS                     #                                   
 ###################################################  
 
    
@@ -142,7 +143,7 @@ SRC="CONF=.*"
 DST="CONF=${CONF}"
 sed -i "s|$SRC|$DST|" ${JOB_SCRIPT}
 
-# Change path to MontePython in job script                                                                                                     
+# Change path to MontePython in job script                                                    
 MP=${MP_DIR}/montepython/MontePython.py
 SRC="MP=.*"
 DST="MP=${MP}"
