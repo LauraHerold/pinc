@@ -1,5 +1,5 @@
 # pinc
-Simple simulated-annealing minimizer to compute **p**rofiles **in** cosmology, i.e. profile likelihoods or global bestfits with [MontePython](https://github.com/brinckmann/montepython_public) and (any version of) [CLASS](https://github.com/lesgourg/class_public). 
+Simple simulated-annealing minimizer to compute **p**rofiles **in** **c**osmology, i.e. profile likelihoods or global bestfits with [MontePython](https://github.com/brinckmann/montepython_public) and (any version of) [CLASS](https://github.com/lesgourg/class_public). 
 
 We provide all notebooks to reproduce the plots in https://arxiv.org/abs/24... in `asymptotic checks`.
 
