@@ -67,18 +67,16 @@ RESTART3=${OUT_NAME}/2023-11-26_23400000__1.txt
 #                 Preliminaries                   #                                                         
 ################################################### 
 
-
 #### Small changes in two MontePython scripts (after running this once, these two sed commands could be removed)
 # Small change to temperature treatment in montepython/sampler.py                                                                              
-SRC="return loglike/command_line.temperature"
+SRC="return loglike/data.command_line.temperature"
 DST="return loglike"
 sed -i "s|$SRC|$DST|" ${MP_DIR}/montepython/sampler.py
 
-# Small change to temperature treatment in montepython/mcmc.py
-SRC="alpha = np.exp(command_line.lklfactor*(newloglike-loglike))"
-DST="alpha = np.exp(command_line.lklfactor*(newloglike-loglike)/command_line.temperature)"
+# Small change to temperature treatment in montepython/mcmc.py                             
+SRC="alpha = np.exp(newloglike-loglike)"
+DST="alpha = np.exp((newloglike-loglike)/command_line.temperature)"
 sed -i "s|$SRC|$DST|" ${MP_DIR}/montepython/mcmc.py
-
 
 ###################################################
 #                ANALYSE PL                       #
